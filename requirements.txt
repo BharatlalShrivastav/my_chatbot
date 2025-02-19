@@ -1,4 +1,6 @@
 Flask
-flask-cors
-google-cloud-dialogflow
+Flask-Cors
 gunicorn
+google-cloud-dialogflow
+google-auth
+google-auth-oauthlib
