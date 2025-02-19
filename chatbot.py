@@ -9,8 +9,13 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Load Google Dialogflow credentials
-credentials_path = "mychatbot-451407-301b6eb6a61c.json"  # Change this to your JSON key file
-credentials = service_account.Credentials.from_service_account_file(credentials_path)
+import os
+import json
+from google.oauth2 import service_account
+
+# Load credentials from environment variable
+credentials_info = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+credentials = service_account.Credentials.from_service_account_info(credentials_info)
 
 # Function to get AI response from Dialogflow
 def get_ai_response(user_message, session_id="12345"):
