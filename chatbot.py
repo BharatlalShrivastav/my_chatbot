@@ -32,7 +32,7 @@ def get_ai_response(user_message, session_id="12345"):
 def home():
     return "Chatbot API is running!"
 
-@app.route("/chat", methods=["POST"])
+@app.route("/chat", methods=["GET", "POST"])
 def chat():
     user_message = request.json.get("message", "").lower()
     response_text = get_ai_response(user_message)
