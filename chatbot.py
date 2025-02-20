@@ -8,22 +8,20 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Load Google Dialogflow credentials
-import os
-import json
-from google.oauth2 import service_account
+# ✅ Load Google Dialogflow credentials safely
+if "GOOGLE_CREDENTIALS" not in os.environ:
+    raise ValueError("GOOGLE_CREDENTIALS environment variable not found!")
 
-# Load credentials from environment variable
 credentials_info = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 credentials = service_account.Credentials.from_service_account_info(credentials_info)
 
-# Function to get AI response from Dialogflow
+# ✅ Function to get AI response from Dialogflow
 def get_ai_response(user_message, session_id="12345"):
     client = dialogflow.SessionsClient(credentials=credentials)
     session = client.session_path("mychatbot-451407", session_id)
 
-    text_input = dialogflow.types.TextInput(text=user_message, language_code="en")
-    query_input = dialogflow.types.QueryInput(text=text_input)
+    text_input = dialogflow.TextInput(text=user_message, language_code="en")
+    query_input = dialogflow.QueryInput(text=text_input)
     response = client.detect_intent(session=session, query_input=query_input)
 
     return response.query_result.fulfillment_text
@@ -32,9 +30,14 @@ def get_ai_response(user_message, session_id="12345"):
 def home():
     return "Chatbot API is running!"
 
+# ✅ Fix /chat to handle both GET & POST correctly
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
-    user_message = request.json.get("message", "").lower()
+    if request.method == "GET":
+        user_message = request.args.get("message", "").lower()
+    else:
+        user_message = request.json.get("message", "").lower()
+
     response_text = get_ai_response(user_message)
     return jsonify({"response": response_text})
 
